@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package notifier;
+
+service Notifier {
+	rpc Email(EmailRequest) returns (EmailResponse) {}
+}
+
+message EmailRequest {
+	string email = 1;
+}
+
+message EmailResponse {
+	string message = 1;
+	uint64 code = 2;
+}

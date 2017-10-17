@@ -1,0 +1,73 @@
+version: '3'
+services:
+  list:
+    build:
+      context: .
+      args:
+        SRV_NAME: list
+    image: xingcuntian/todo-list
+    container_name: todo-list
+    entrypoint: /go/bin/list
+    depends_on:
+      - db
+    links:
+      - db
+    ports:
+      - "50001:8080"
+
+#  users:
+#    build:
+#      context: .
+#      args:
+#        SRV_NAME: users
+#    image: xingcntian/todo-users
+#    container_name: todo-users
+#    entrypoint: /go/bin/users
+#    depends_on:
+#      - list
+#      - db
+#    links:
+#      - list
+#      - db
+#    ports:
+#      - "50000:8080"
+
+#  notifer:
+#    build:
+#      context: .
+#      args:
+#        SRV_NAME: notifer
+#    image: xingcntian/todo-notifer
+#    container_name: todo-notifer
+#    entrypoint: /go/bin/notifer
+#    depends_on:
+#      - list
+#      - db
+#    links:
+#      - list
+#      - db
+#    ports:
+#      - "50002:8080"
+#
+#  # TODO: notifer service, can be copied and modified from `users`
+
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    image: xingcuntian/todo-web
+    container_name: todo-web
+    depends_on:
+      - list
+      #- users
+    links:
+      - list
+      #- users
+    ports:
+      - "3030:8080"
+
+  db:
+    image: mongo:3.3
+    container_name: todo-db
+    logging:
+      driver: none

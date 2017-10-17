@@ -1,0 +1,20 @@
+{{define "body"}}
+<div class="row">
+	<div class="col-4"></div>
+	<div class="col-4">
+		{{ if .Data.Error }}
+		<div class="alert alert-danger" role="alert">
+			{{ .Data.Error }}
+		</div>
+		{{end}}
+		<form action="/" method="POST">
+			<div class="form-group">
+				<input name="email" type="email" class="form-control" placeholder="Email" required>
+				<small class="form-text text-muted">We'll never share your email with anyone else.</small>
+			</div>
+			<button type="submit" class="btn btn-primary">Create TODO List</button>
+		</form>
+	</div>
+	<div class="col-4"></div>
+</div>
+{{end}}

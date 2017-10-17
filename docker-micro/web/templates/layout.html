@@ -1,0 +1,25 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Microservices with Go</title>
+	<link rel="icon" type="image/png" href="https://avatars0.githubusercontent.com/u/6192875?v=4&s=200" />
+	<link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css"/>
+</head>
+
+<body>
+<div class="container">
+	<nav class="navbar navbar-expand-lg navbar-light bg-light" style="margin-bottom: 50px;">
+		<a class="navbar-brand" href="/">
+			<img src="https://avatars0.githubusercontent.com/u/6192875?v=4&s=200" width="30" height="30" alt="">
+		</a>
+		<a class="navbar-brand" href="/">Microservices with Go</a>
+	</nav>
+
+	{{template "body" . }}
+</div>
+
+</body>
+
+</html>
+{{end}}
