@@ -13,43 +13,24 @@ services:
     links:
       - db
     ports:
-      - "50001:8080"
+      - "50001:8081"
 
-#  users:
-#    build:
-#      context: .
-#      args:
-#        SRV_NAME: users
-#    image: xingcntian/todo-users
-#    container_name: todo-users
-#    entrypoint: /go/bin/users
-#    depends_on:
-#      - list
-#      - db
-#    links:
-#      - list
-#      - db
-#    ports:
-#      - "50000:8080"
-
-#  notifer:
-#    build:
-#      context: .
-#      args:
-#        SRV_NAME: notifer
-#    image: xingcntian/todo-notifer
-#    container_name: todo-notifer
-#    entrypoint: /go/bin/notifer
-#    depends_on:
-#      - list
-#      - db
-#    links:
-#      - list
-#      - db
-#    ports:
-#      - "50002:8080"
-#
-#  # TODO: notifer service, can be copied and modified from `users`
+  users:
+    build:
+      context: .
+      args:
+        SRV_NAME: users
+    image: xingcntian/todo-users
+    container_name: todo-users
+    entrypoint: /go/bin/users
+    depends_on:
+      - list
+      - db
+    links:
+      - list
+      - db
+    ports:
+      - "50000:8082"
 
   web:
     build:
@@ -59,10 +40,10 @@ services:
     container_name: todo-web
     depends_on:
       - list
-      #- users
+      - users
     links:
       - list
-      #- users
+      - users
     ports:
       - "3030:8080"
 

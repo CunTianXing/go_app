@@ -10,36 +10,36 @@ import (
 	"github.com/gorilla/context"
 
 	pbList "github.com/CunTianXing/go_app/docker-micro/proto/list"
-	//pbUsers "github.com/CunTianXing/go_app/docker-micro/proto/users"
+	pbUsers "github.com/CunTianXing/go_app/docker-micro/proto/users"
 )
 
 // Context struct
 type Context struct {
-	//UsersService pbUsers.UsersClient
+	UsersService pbUsers.UsersClient
 	ListService  pbList.ListClient
 }
 
 // ListenAndServe func
 func ListenAndServe() {
-	//connUsers, errUsers := grpc.Dial("users:8080", grpc.WithInsecure())
-	//if errUsers != nil {
-	//	log.Fatalf("cannot connect to users service: %v", errUsers)
-	//}
+	connUsers, errUsers := grpc.Dial("users:8082", grpc.WithInsecure())
+	if errUsers != nil {
+		log.Fatalf("cannot connect to users service: %v", errUsers)
+	}
 
-	connList, errList := grpc.Dial("list:8080", grpc.WithInsecure())
+	connList, errList := grpc.Dial("list:8081", grpc.WithInsecure())
 	if errList != nil {
 		log.Fatalf("[web] cannot connect to list service: %v", errList)
 	}
 
 	ctx := new(Context)
-	//ctx.UsersService = pbUsers.NewUsersClient(connUsers)
+	ctx.UsersService = pbUsers.NewUsersClient(connUsers)
 	ctx.ListService = pbList.NewListClient(connList)
 
 	r := web.New(Context{}).
-		Get("/", ctx.home)
-		//Post("/", ctx.createUser).
-		//Get("/user/:id", ctx.user).
-		//Post("/user/:id", ctx.user)
+		Get("/", ctx.home).
+		Post("/", ctx.createUser).
+		Get("/user/:id", ctx.user).
+		Post("/user/:id", ctx.user)
 
 	serveMux := http.NewServeMux()
 	serveMux.Handle("/", r)

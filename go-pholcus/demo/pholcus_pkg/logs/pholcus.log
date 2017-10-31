@@ -1,0 +1,114 @@
+2017/10/24 21:54:15 [I]                                                                                                ！！当前运行模式为：[ 单机 ] 模式！！
+2017/10/24 21:54:24 [I]  *     不使用代理IP
+
+2017/10/24 21:54:24 [I]  *     执行任务总数(任务数[*自定义配置数])为 1 个
+
+2017/10/24 21:54:24 [I]  *     采集引擎池容量为 1
+
+2017/10/24 21:54:24 [I]  *     并发协程最多 20 个
+
+2017/10/24 21:54:24 [I]  *     默认随机停顿 150~600 毫秒
+
+2017/10/24 21:54:24 [P]  *                                                                                                 —— 开始抓取，请耐心等候 ——
+2017/10/24 21:54:24 [I]  *********************************************************************************************************************************** 
+2017/10/24 21:54:24 [D]  *     Start: https://www.lagou.com/zhaopin/go/?filterOption=3
+2017/10/24 21:54:28 [I]  *     Success: https://www.lagou.com/zhaopin/go/?filterOption=3
+
+2017/10/24 21:54:28 [D]  *     Start: https://www.lagou.com/zhaopin/go/2/
+2017/10/24 21:54:29 [I]  *     Success: https://www.lagou.com/zhaopin/go/2/
+
+2017/10/24 21:54:29 [D]  *     Start: https://www.lagou.com/zhaopin/go/3/
+2017/10/24 21:54:29 [I]  *     Success: https://www.lagou.com/zhaopin/go/3/
+
+2017/10/24 21:54:29 [D]  *     Start: https://www.lagou.com/zhaopin/go/4/
+2017/10/24 21:54:31 [I]  *     Success: https://www.lagou.com/zhaopin/go/4/
+
+2017/10/24 21:54:31 [D]  *     Start: https://www.lagou.com/zhaopin/go/5/
+2017/10/24 21:54:31 [I]  *     Success: https://www.lagou.com/zhaopin/go/5/
+
+2017/10/24 21:54:31 [D]  *     Start: https://www.lagou.com/zhaopin/go/6/
+2017/10/24 21:54:32 [I]  *     Success: https://www.lagou.com/zhaopin/go/6/
+
+2017/10/24 21:54:32 [D]  *     Start: https://www.lagou.com/zhaopin/go/7/
+2017/10/24 21:54:32 [I]  *     Success: https://www.lagou.com/zhaopin/go/7/
+
+2017/10/24 21:54:32 [D]  *     Start: https://www.lagou.com/zhaopin/go/8/
+2017/10/24 21:54:33 [I]  *     Success: https://www.lagou.com/zhaopin/go/8/
+
+2017/10/24 21:54:33 [D]  *     Start: https://www.lagou.com/zhaopin/go/9/
+2017/10/24 21:54:33 [I]  *     Success: https://www.lagou.com/zhaopin/go/9/
+
+2017/10/24 21:54:33 [D]  *     Start: https://www.lagou.com/zhaopin/go/10/
+2017/10/24 21:54:34 [I]  *     Success: https://www.lagou.com/zhaopin/go/10/
+
+2017/10/24 21:54:34 [D]  *     Start: https://www.lagou.com/zhaopin/go/11/
+2017/10/24 21:54:35 [I]  *     Success: https://www.lagou.com/zhaopin/go/11/
+
+2017/10/24 21:54:35 [D]  *     Start: https://www.lagou.com/zhaopin/go/12/
+2017/10/24 21:54:36 [I]  *     Success: https://www.lagou.com/zhaopin/go/12/
+
+2017/10/24 21:54:36 [D]  *     Start: https://www.lagou.com/zhaopin/go/13/
+2017/10/24 21:54:37 [I]  *     Success: https://www.lagou.com/zhaopin/go/13/
+
+2017/10/24 21:54:37 [D]  *     Start: https://www.lagou.com/zhaopin/go/14/
+2017/10/24 21:54:37 [I]  *     Success: https://www.lagou.com/zhaopin/go/14/
+
+2017/10/24 21:54:37 [D]  *     Start: https://www.lagou.com/zhaopin/go/15/
+2017/10/24 21:54:38 [I]  *     Success: https://www.lagou.com/zhaopin/go/15/
+
+2017/10/24 21:54:38 [D]  *     Start: https://www.lagou.com/zhaopin/go/16/
+2017/10/24 21:54:38 [I]  *     Success: https://www.lagou.com/zhaopin/go/16/
+
+2017/10/24 21:54:38 [D]  *     Start: https://www.lagou.com/zhaopin/go/17/
+2017/10/24 21:54:39 [I]  *     Success: https://www.lagou.com/zhaopin/go/17/
+
+2017/10/24 21:54:39 [D]  *     Start: https://www.lagou.com/zhaopin/go/18/
+2017/10/24 21:54:39 [I]  *     Success: https://www.lagou.com/zhaopin/go/18/
+
+2017/10/24 21:54:40 [D]  *     Start: https://www.lagou.com/zhaopin/go/19/
+2017/10/24 21:54:40 [I]  *     Success: https://www.lagou.com/zhaopin/go/19/
+
+2017/10/24 21:54:40 [D]  *     Start: https://www.lagou.com/zhaopin/go/20/
+2017/10/24 21:54:40 [I]  *     Success: https://www.lagou.com/zhaopin/go/20/
+
+2017/10/24 21:54:40 [D]  *     Start: https://www.lagou.com/zhaopin/go/21/
+2017/10/24 21:54:41 [I]  *     Success: https://www.lagou.com/zhaopin/go/21/
+
+2017/10/24 21:54:42 [D]  *     Start: https://www.lagou.com/zhaopin/go/22/
+2017/10/24 21:54:42 [I]  *     Success: https://www.lagou.com/zhaopin/go/22/
+
+2017/10/24 21:54:42 [D]  *     Start: https://www.lagou.com/zhaopin/go/23/
+2017/10/24 21:54:42 [I]  *     Success: https://www.lagou.com/zhaopin/go/23/
+
+2017/10/24 21:54:42 [D]  *     Start: https://www.lagou.com/zhaopin/go/24/
+2017/10/24 21:54:43 [I]  *     Success: https://www.lagou.com/zhaopin/go/24/
+
+2017/10/24 21:54:43 [D]  *     Start: https://www.lagou.com/zhaopin/go/25/
+2017/10/24 21:54:44 [I]  *     Success: https://www.lagou.com/zhaopin/go/25/
+
+2017/10/24 21:54:44 [D]  *     Start: https://www.lagou.com/zhaopin/go/26/
+2017/10/24 21:54:45 [I]  *     Success: https://www.lagou.com/zhaopin/go/26/
+
+2017/10/24 21:54:45 [D]  *     Start: https://www.lagou.com/zhaopin/go/27/
+2017/10/24 21:54:45 [I]  *     Success: https://www.lagou.com/zhaopin/go/27/
+
+2017/10/24 21:54:45 [D]  *     Start: https://www.lagou.com/zhaopin/go/28/
+2017/10/24 21:54:46 [I]  *     Success: https://www.lagou.com/zhaopin/go/28/
+
+2017/10/24 21:54:46 [D]  *     Start: https://www.lagou.com/zhaopin/go/29/
+2017/10/24 21:54:46 [I]  *     Success: https://www.lagou.com/zhaopin/go/29/
+
+2017/10/24 21:54:46 [I]  * 
+2017/10/24 21:54:46 [P]  *     [数据输出：拉勾-岗位 | KEYIN： | 批次：1]   数据 435 条！
+
+2017/10/24 21:54:46 [I]  *     [添加成功记录]: 29 条
+
+2017/10/24 21:54:46 [I]  * 
+2017/10/24 21:54:46 [P]  *     [任务小计：拉勾-岗位 | KEYIN：]   共采集数据 435 条，用时 22.264765446s！
+
+2017/10/24 21:54:46 [I]  * 
+2017/10/24 21:54:46 [I]  *********************************************************************************************************************************** 
+2017/10/24 21:54:46 [I]  * 
+2017/10/24 21:54:46 [P]  *                            —— 本次合计采集【数据 435 条】， 实爬【成功 29 URL + 失败 0 URL = 合计 29 URL】，耗时【22.264795513s】 ——
+2017/10/24 21:54:46 [I]  * 
+2017/10/24 21:54:46 [I]  *********************************************************************************************************************************** 

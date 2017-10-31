@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	listener, _ := net.Listen("tcp", ":8080")
+	listener, _ := net.Listen("tcp", ":8082")
 	log.Print("[main] service started")
 
 	shared.Init()

@@ -1,7 +1,7 @@
 {
   "Server"          : "0.0.0.0:8080",
-  "ListService"     : "list:8080",
-  "UsersService"    : "users:8080",
+  "ListService"     : "list:8081",
+  "UsersService"    : "users:8082",
   "NotifierService" : "notifier:8080",
   "MongoDBHost"     : "db",
   "MongoDBUser"     : "",
