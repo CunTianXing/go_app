@@ -33,6 +33,10 @@ func main() {
 
 }
 
+func cString(str string) (*C.char, C.size_t) {
+	return C.CString(str), C.size_t(len(str))
+}
+
 // func C.CString(goString string) *C.char
 // func C.GoString(cString *C.char) string
 // func C.GoStringN(cString *C.char, length C.int) string
@@ -45,3 +49,15 @@ func main() {
 // fmt.Println(slice)
 
 //func C.GoBytes(cArray unsafe.Pointer, length C.int) []byte
+
+// // Go string to C string; result must be freed with C.free
+// func C.CString(string) *C.char
+
+// // C string to Go string
+// func C.GoString(*C.char) string
+
+// // C string, length to Go string
+// func C.GoStringN(*C.char, C.int) string
+
+// // C pointer, length to Go []byte
+// func C.GoBytes(unsafe.Pointer, C.int) []byte
