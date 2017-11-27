@@ -1,0 +1,1 @@
+http://blog.scnace.cc/golang%E7%9A%84%E4%B8%80%E4%B8%AAOCR%E5%BA%93/

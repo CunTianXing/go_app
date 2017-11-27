@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/gocolly/colly"
+	"github.com/gocolly/colly/debug"
 )
 
 func main() {
@@ -24,6 +25,7 @@ func main() {
 
 	// Instantiate default collector
 	c := colly.NewCollector()
+	c.SetDebugger(&debug.LogDebugger{})
 
 	c.OnHTML("#currencies-all tbody tr", func(e *colly.HTMLElement) {
 		writer.Write([]string{

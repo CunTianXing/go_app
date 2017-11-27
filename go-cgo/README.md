@@ -13,3 +13,7 @@ float -->  C.float -->  float32
 double -->  C.double -->  float64
 wchar_t -->  C.wchar_t  -->  
 void * -> unsafe.Pointer
+
+http://log.zyxar.com/blog/2012/04/08/go-lang-notes/
+https://copyninja.info/blog/workaround-gotypesystems.html
+https://golang.org/misc/cgo/errors/malloc.go
