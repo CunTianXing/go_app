@@ -6,4 +6,14 @@ sudo apt-get install tesseract-ocr
 sudo apt-get install tesseract-ocr-chi-sim
 
 https://github.com/sgterban/tesseract-go-api
+
+http://infinite.36deep.com/Golang-scrap-colly
+https://github.com/smileboywtu/FileColly
+
 https://github.com/nicle-lin
+https://www.ctolib.com/go/
+https://www.ctolib.com/article/compares/63630
+
+https://zhuanlan.zhihu.com/p/30351943
+https://github.com/cw1997/NATBypass
+
