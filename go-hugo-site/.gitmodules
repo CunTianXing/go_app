@@ -1,0 +1,3 @@
+[submodule "themes/polymer"]
+	path = themes/polymer
+	url = https://github.com/pdevty/polymer.git
