@@ -12,9 +12,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/CunTianXing/go_app/go-fabric/fabric-sdk-go/integration"
-	"github.com/CunTianXing/go_app/go-fabric/fabric-sdk-go/metadata"
 	"github.com/hyperledger/fabric-sdk-go/api/apitxn"
+	"github.com/hyperledger/fabric-sdk-go/test/integration"
+	"github.com/hyperledger/fabric-sdk-go/test/metadata"
 
 	"github.com/hyperledger/fabric-sdk-go/third_party/github.com/hyperledger/fabric/protos/common"
 	pb "github.com/hyperledger/fabric-sdk-go/third_party/github.com/hyperledger/fabric/protos/peer"

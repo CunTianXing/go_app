@@ -10,8 +10,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/CunTianXing/go_app/go-fabric/fabric-sdk-go/integration"
 	config "github.com/hyperledger/fabric-sdk-go/api/apiconfig"
+	"github.com/hyperledger/fabric-sdk-go/test/integration"
 )
 
 var testFabricConfig config.Config
@@ -31,7 +31,7 @@ func setup() {
 		ConfigFile: "../" + integration.ConfigTestFile,
 	}
 
-	testFabricConfig, err = testSetup.InitConfig()
+	testFabricConfig, err = testSetup.InitConfig()()
 	if err != nil {
 		fmt.Printf("Failed InitConfig [%s]\n", err)
 		os.Exit(1)

@@ -25,9 +25,9 @@ import (
 	chmgmt "github.com/hyperledger/fabric-sdk-go/api/apitxn/chmgmtclient"
 	resmgmt "github.com/hyperledger/fabric-sdk-go/api/apitxn/resmgmtclient"
 
-	"github.com/CunTianXing/go_app/go-fabric/fabric-sdk-go/integration"
-	"github.com/CunTianXing/go_app/go-fabric/fabric-sdk-go/metadata"
 	"github.com/hyperledger/fabric-sdk-go/def/factory/defsvc"
+	"github.com/hyperledger/fabric-sdk-go/test/integration"
+	"github.com/hyperledger/fabric-sdk-go/test/metadata"
 
 	selection "github.com/hyperledger/fabric-sdk-go/pkg/fabric-txn/selection/dynamicselection"
 
@@ -50,25 +50,20 @@ var orgTestPeer1 fab.Peer
 func TestOrgsEndToEnd(t *testing.T) {
 
 	// Create SDK setup for the integration tests
-	c, err := config.FromFile("../" + integration.ConfigTestFile)
-	if err != nil {
-		t.Fatalf("Failed to load config: %s", err)
-	}
-
-	sdk, err := fabsdk.New(c)
+	sdk, err := fabsdk.New(config.FromFile("../" + integration.ConfigTestFile))
 	if err != nil {
 		t.Fatalf("Failed to create new SDK: %s", err)
 	}
 
 	// Channel management client is responsible for managing channels (create/update channel)
-	chMgmtClient, err := sdk.NewClientChannelMgmt(fabsdk.WithUser("Admin"), fabsdk.WithOrg("ordererorg"))
+	chMgmtClient, err := sdk.NewClient(fabsdk.WithUser("Admin"), fabsdk.WithOrg("ordererorg")).ChannelMgmt()
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Create channel (or update if it already exists)
 	org1AdminUser := loadOrgUser(t, sdk, org1, "Admin")
-	req := chmgmt.SaveChannelRequest{ChannelID: "orgchannel", ChannelConfig: path.Join("../../../", metadata.ChannelConfigPath, "orgchannel.tx"), SigningUser: org1AdminUser}
+	req := chmgmt.SaveChannelRequest{ChannelID: "orgchannel", ChannelConfig: path.Join("../../../", metadata.ChannelConfigPath, "orgchannel.tx"), SigningIdentity: org1AdminUser}
 	if err = chMgmtClient.SaveChannel(req); err != nil {
 		t.Fatal(err)
 	}
@@ -77,7 +72,7 @@ func TestOrgsEndToEnd(t *testing.T) {
 	time.Sleep(time.Second * 3)
 
 	// Org1 resource management client (Org1 is default org)
-	org1ResMgmt, err := sdk.NewClientResourceMgmt(fabsdk.WithUser("Admin"))
+	org1ResMgmt, err := sdk.NewClient(fabsdk.WithUser("Admin")).ResourceMgmt()
 	if err != nil {
 		t.Fatalf("Failed to create new resource management client: %s", err)
 	}
@@ -88,7 +83,7 @@ func TestOrgsEndToEnd(t *testing.T) {
 	}
 
 	// Org2 resource management client
-	org2ResMgmt, err := sdk.NewClientResourceMgmt(fabsdk.WithUser("Admin"), fabsdk.WithOrg(org2))
+	org2ResMgmt, err := sdk.NewClient(fabsdk.WithUser("Admin"), fabsdk.WithOrg(org2)).ResourceMgmt()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -130,26 +125,14 @@ func TestOrgsEndToEnd(t *testing.T) {
 	// Load specific targets for move funds test
 	loadOrgPeers(t, sdk)
 
-	// Client provides access to txn APIs
-	clientOrg1User, err := sdk.NewClient(fabsdk.WithUser("User1"), fabsdk.WithOrg(org1))
-	if err != nil {
-		t.Fatalf("Failed to create new client for Org1 user: %s", err)
-	}
-
 	// Org1 user connects to 'orgchannel'
-	chClientOrg1User, err := clientOrg1User.Channel("orgchannel")
+	chClientOrg1User, err := sdk.NewClient(fabsdk.WithUser("User1"), fabsdk.WithOrg(org1)).Channel("orgchannel")
 	if err != nil {
 		t.Fatalf("Failed to create new channel client for Org1 user: %s", err)
 	}
 
-	// Client provides access to txn APIs
-	clientOrg2User, err := sdk.NewClient(fabsdk.WithUser("User1"), fabsdk.WithOrg(org2))
-	if err != nil {
-		t.Fatalf("Failed to create new client for Org1 user: %s", err)
-	}
-
 	// Org2 user connects to 'orgchannel'
-	chClientOrg2User, err := clientOrg2User.Channel("orgchannel")
+	chClientOrg2User, err := sdk.NewClient(fabsdk.WithUser("User1"), fabsdk.WithOrg(org2)).Channel("orgchannel")
 	if err != nil {
 		t.Fatalf("Failed to create new channel client for Org2 user: %s", err)
 	}
@@ -222,13 +205,14 @@ func TestOrgsEndToEnd(t *testing.T) {
 	mychannelUser := selection.ChannelUser{ChannelID: "orgchannel", UserName: "User1", OrgName: "Org1"}
 
 	// Create SDK setup for channel client with dynamic selection
-	sdk, err = fabsdk.New(c, fabsdk.WithServicePkg(&DynamicSelectionProviderFactory{ChannelUsers: []selection.ChannelUser{mychannelUser}}))
+	sdk, err = fabsdk.New(config.FromFile("../"+integration.ConfigTestFile),
+		fabsdk.WithServicePkg(&DynamicSelectionProviderFactory{ChannelUsers: []selection.ChannelUser{mychannelUser}}))
 	if err != nil {
 		t.Fatalf("Failed to create new SDK: %s", err)
 	}
 
 	// Create new client that will use dynamic selection
-	chClientOrg2User, err = sdk.NewClientChannel(fabsdk.WithUser("User1"), "orgchannel", fabsdk.WithOrg(org2))
+	chClientOrg2User, err = sdk.NewClient(fabsdk.WithUser("User1"), fabsdk.WithOrg(org2)).Channel("orgchannel")
 	if err != nil {
 		t.Fatalf("Failed to create new channel client for Org2 user: %s", err)
 	}
@@ -271,14 +255,13 @@ func verifyValue(t *testing.T, chClient apitxn.ChannelClient, expected int) {
 
 }
 
-func loadOrgUser(t *testing.T, sdk *fabsdk.FabricSDK, orgName string, userName string) fab.User {
+func loadOrgUser(t *testing.T, sdk *fabsdk.FabricSDK, orgName string, userName string) fab.IdentityContext {
 
-	user, err := sdk.NewPreEnrolledUser(orgName, userName)
+	session, err := sdk.NewClient(fabsdk.WithUser(userName), fabsdk.WithOrg(orgName)).Session()
 	if err != nil {
-		t.Fatal(errors.Wrapf(err, "NewPreEnrolledUser failed, %s, %s", orgName, userName))
+		t.Fatal(errors.Wrapf(err, "Session failed, %s, %s", orgName, userName))
 	}
-
-	return user
+	return session.Identity()
 }
 
 func loadOrgPeers(t *testing.T, sdk *fabsdk.FabricSDK) {

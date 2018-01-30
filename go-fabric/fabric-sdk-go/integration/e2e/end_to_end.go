@@ -14,9 +14,9 @@ import (
 
 	"github.com/hyperledger/fabric-sdk-go/api/apiconfig"
 
-	"github.com/CunTianXing/go_app/go-fabric/fabric-sdk-go/integration"
-	"github.com/CunTianXing/go_app/go-fabric/fabric-sdk-go/metadata"
 	"github.com/hyperledger/fabric-sdk-go/api/apitxn"
+	"github.com/hyperledger/fabric-sdk-go/test/integration"
+	"github.com/hyperledger/fabric-sdk-go/test/metadata"
 	"github.com/hyperledger/fabric-sdk-go/third_party/github.com/hyperledger/fabric/common/cauthdsl"
 
 	chmgmt "github.com/hyperledger/fabric-sdk-go/api/apitxn/chmgmtclient"
@@ -35,37 +35,33 @@ const (
 )
 
 func runWithConfigFixture(t *testing.T) {
-	c, err := config.FromFile("../" + integration.ConfigTestFile)
-	if err != nil {
-		t.Fatalf("Failed to load config: %s", err)
-	}
-
-	Run(t, c)
+	Run(t, config.FromFile("../"+integration.ConfigTestFile))
 }
 
 // Run enables testing an end-to-end scenario against the supplied SDK options
-func Run(t *testing.T, config apiconfig.Config, sdkOpts ...fabsdk.Option) {
+func Run(t *testing.T, configOpt apiconfig.ConfigProvider, sdkOpts ...fabsdk.Option) {
 
-	sdk, err := fabsdk.New(config, sdkOpts...)
+	sdk, err := fabsdk.New(configOpt, sdkOpts...)
 	if err != nil {
 		t.Fatalf("Failed to create new SDK: %s", err)
 	}
 
 	// Channel management client is responsible for managing channels (create/update channel)
 	// Supply user that has privileges to create channel (in this case orderer admin)
-	chMgmtClient, err := sdk.NewClientChannelMgmt(fabsdk.WithUser("Admin"), fabsdk.WithOrg("ordererorg"))
+	chMgmtClient, err := sdk.NewClient(fabsdk.WithUser("Admin"), fabsdk.WithOrg("ordererorg")).ChannelMgmt()
 	if err != nil {
 		t.Fatalf("Failed to create channel management client: %s", err)
 	}
 
 	// Org admin user is signing user for creating channel
-	orgAdminUser, err := sdk.NewPreEnrolledUser(orgName, orgAdmin)
+	session, err := sdk.NewClient(fabsdk.WithUser(orgAdmin), fabsdk.WithOrg(orgName)).Session()
 	if err != nil {
-		t.Fatalf("NewPreEnrolledUser failed for %s, %s: %s", orgName, orgAdmin, err)
+		t.Fatalf("Failed to get session for %s, %s: %s", orgName, orgAdmin, err)
 	}
+	orgAdminUser := session.Identity()
 
 	// Create channel
-	req := chmgmt.SaveChannelRequest{ChannelID: channelID, ChannelConfig: path.Join("../../../", metadata.ChannelConfigPath, "mychannel.tx"), SigningUser: orgAdminUser}
+	req := chmgmt.SaveChannelRequest{ChannelID: channelID, ChannelConfig: path.Join("../../../", metadata.ChannelConfigPath, "mychannel.tx"), SigningIdentity: orgAdminUser}
 	if err = chMgmtClient.SaveChannel(req); err != nil {
 		t.Fatal(err)
 	}
@@ -74,7 +70,7 @@ func Run(t *testing.T, config apiconfig.Config, sdkOpts ...fabsdk.Option) {
 	time.Sleep(time.Second * 3)
 
 	// Org resource management client
-	orgResMgmt, err := sdk.NewClientResourceMgmt(fabsdk.WithUser(orgAdmin))
+	orgResMgmt, err := sdk.NewClient(fabsdk.WithUser(orgAdmin)).ResourceMgmt()
 	if err != nil {
 		t.Fatalf("Failed to create new resource management client: %s", err)
 	}
@@ -108,14 +104,8 @@ func Run(t *testing.T, config apiconfig.Config, sdkOpts ...fabsdk.Option) {
 
 	// ************ Test setup complete ************** //
 
-	// Client provides access to APIs for transacting with Fabric (Org1 is default org)
-	client, err := sdk.NewClient(fabsdk.WithUser("User1"))
-	if err != nil {
-		t.Fatalf("Failed to create client: %s", err)
-	}
-
-	// Channel client is used to query and execute transactions
-	chClient, err := client.Channel(channelID)
+	// Channel client is used to query and execute transactions (Org1 is default org)
+	chClient, err := sdk.NewClient(fabsdk.WithUser("User1")).Channel(channelID)
 	if err != nil {
 		t.Fatalf("Failed to create new channel client: %s", err)
 	}

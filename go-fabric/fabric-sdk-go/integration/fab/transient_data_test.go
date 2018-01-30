@@ -10,9 +10,9 @@ import (
 	"path"
 	"testing"
 
-	"github.com/CunTianXing/go_app/go-fabric/fabric-sdk-go/integration"
-	"github.com/CunTianXing/go_app/go-fabric/fabric-sdk-go/metadata"
 	"github.com/hyperledger/fabric-sdk-go/api/apitxn"
+	"github.com/hyperledger/fabric-sdk-go/test/integration"
+	"github.com/hyperledger/fabric-sdk-go/test/metadata"
 )
 
 // TestTransient ...

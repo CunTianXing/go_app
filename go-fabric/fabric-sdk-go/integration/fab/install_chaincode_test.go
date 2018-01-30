@@ -14,8 +14,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/CunTianXing/go_app/go-fabric/fabric-sdk-go/integration"
 	packager "github.com/hyperledger/fabric-sdk-go/pkg/fabric-client/ccpackager/gopackager"
+	"github.com/hyperledger/fabric-sdk-go/test/integration"
 	"github.com/hyperledger/fabric-sdk-go/test/metadata"
 )
 

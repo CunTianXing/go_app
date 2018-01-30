@@ -14,11 +14,11 @@ import (
 	"github.com/hyperledger/fabric-sdk-go/api/apitxn"
 	pb "github.com/hyperledger/fabric-sdk-go/third_party/github.com/hyperledger/fabric/protos/peer"
 
-	"github.com/CunTianXing/go_app/go-fabric/fabric-sdk-go/integration"
-	"github.com/CunTianXing/go_app/go-fabric/fabric-sdk-go/metadata"
 	"github.com/hyperledger/fabric-sdk-go/pkg/config"
 	"github.com/hyperledger/fabric-sdk-go/pkg/errors"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fabsdk"
+	"github.com/hyperledger/fabric-sdk-go/test/integration"
+	"github.com/hyperledger/fabric-sdk-go/test/metadata"
 )
 
 const (
@@ -44,17 +44,12 @@ func TestChannelClient(t *testing.T) {
 	}
 
 	// Create SDK setup for the integration tests
-	c, err := config.FromFile(testSetup.ConfigFile)
-	if err != nil {
-		t.Fatalf("Failed to load config: %s", err)
-	}
-
-	sdk, err := fabsdk.New(c)
+	sdk, err := fabsdk.New(config.FromFile(testSetup.ConfigFile))
 	if err != nil {
 		t.Fatalf("Failed to create new SDK: %s", err)
 	}
 
-	chClient, err := sdk.NewClientChannel(fabsdk.WithUser("User1"), testSetup.ChannelID)
+	chClient, err := sdk.NewClient(fabsdk.WithUser("User1")).Channel(testSetup.ChannelID)
 	if err != nil {
 		t.Fatalf("Failed to create new channel client: %s", err)
 	}

@@ -12,11 +12,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/CunTianXing/go_app/go-fabric/fabric-sdk-go/integration"
-	"github.com/CunTianXing/go_app/go-fabric/fabric-sdk-go/metadata"
 	"github.com/hyperledger/fabric-sdk-go/api/apiconfig"
 	fab "github.com/hyperledger/fabric-sdk-go/api/apifabclient"
 	"github.com/hyperledger/fabric-sdk-go/api/apitxn"
+	"github.com/hyperledger/fabric-sdk-go/test/integration"
+	"github.com/hyperledger/fabric-sdk-go/test/metadata"
 
 	"github.com/hyperledger/fabric-sdk-go/pkg/errors"
 	peer "github.com/hyperledger/fabric-sdk-go/pkg/fabric-client/peer"
@@ -76,8 +76,7 @@ func TestChannelQueries(t *testing.T) {
 
 	testQueryByChaincode(t, channel, client.Config(), testSetup)
 
-	// TODO: Synch with test in node SDK when it becomes available
-	// testInstantiatedChaincodes(t, channel)
+	testInstantiatedChaincodes(t, channel)
 
 }
 
@@ -176,7 +175,7 @@ func testQueryBlock(t *testing.T, channel fab.Channel) {
 
 }
 
-func testQueryChannels(t *testing.T, channel fab.Channel, client fab.FabricClient) {
+func testQueryChannels(t *testing.T, channel fab.Channel, client fab.Resource) {
 
 	// Our target will be primary peer on this channel
 	target := channel.PrimaryPeer()
@@ -192,7 +191,7 @@ func testQueryChannels(t *testing.T, channel fab.Channel, client fab.FabricClien
 
 }
 
-func testInstalledChaincodes(t *testing.T, channel fab.Channel, client fab.FabricClient, testSetup *integration.BaseSetupImpl) {
+func testInstalledChaincodes(t *testing.T, channel fab.Channel, client fab.Resource, testSetup *integration.BaseSetupImpl) {
 
 	// Our target will be primary peer on this channel
 	target := channel.PrimaryPeer()
@@ -232,9 +231,6 @@ func testQueryByChaincode(t *testing.T, channel fab.Channel, config apiconfig.Co
 
 	// Test valid targets
 	targets := peer.PeersToTxnProcessors(channel.Peers())
-
-	// set Client User Context to Admin before calling QueryByChaincode
-	testSetup.Client.SetUserContext(testSetup.AdminUser)
 
 	request := apitxn.ChaincodeInvokeRequest{
 		Targets:     targets,

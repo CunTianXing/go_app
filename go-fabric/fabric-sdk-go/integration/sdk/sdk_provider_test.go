@@ -48,18 +48,14 @@ func TestDynamicSelection(t *testing.T) {
 	mychannelUser := selection.ChannelUser{ChannelID: testSetup.ChannelID, UserName: "User1", OrgName: "Org1"}
 
 	// Create SDK setup for channel client with dynamic selection
-	c, err := config.FromFile(testSetup.ConfigFile)
-	if err != nil {
-		t.Fatalf("Failed to load config: %s", err)
-	}
-
-	sdk, err := fabsdk.New(c, fabsdk.WithServicePkg(&DynamicSelectionProviderFactory{ChannelUsers: []selection.ChannelUser{mychannelUser}}))
+	sdk, err := fabsdk.New(config.FromFile(testSetup.ConfigFile),
+		fabsdk.WithServicePkg(&DynamicSelectionProviderFactory{ChannelUsers: []selection.ChannelUser{mychannelUser}}))
 
 	if err != nil {
 		t.Fatalf("Failed to create new SDK: %s", err)
 	}
 
-	chClient, err := sdk.NewClientChannel(fabsdk.WithUser("User1"), testSetup.ChannelID)
+	chClient, err := sdk.NewClient(fabsdk.WithUser("User1")).Channel(testSetup.ChannelID)
 	if err != nil {
 		t.Fatalf("Failed to create new channel client: %s", err)
 	}
