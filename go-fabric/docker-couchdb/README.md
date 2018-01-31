@@ -14,8 +14,8 @@ mkdir couchdb
 下载完成后，我们只需要执行以下命令即可启用一个CouchDB的实例：
 
 docker run -p 5984:5984 -d --name my-couchdb -e COUCHDB_USER=admin -e COUCHDB_PASSWORD=password -v ~/couchdb:/opt/couchdb/data klaemo/couchdb
-启动后我们打开浏览器，访问Linux的IP的5984端口的URL，比如我的Linux是192.168.100.129，那么URL是：
-http://192.168.100.129:5984/_utils
+启动后我们打开浏览器，访问Linux的IP的5984端口的URL，比如我的Linux是http://127.0.0.1，那么URL是：
+http://127.0.0.1:5984/_utils
 这个时候我们就可以看到CouchDB的Web管理界面了。输入用户名admin密码password即可进入。
 现在是一个空数据库，我们将CouchDB和Peer结合起来后再看会是什么样的效果。
 配置CouchDB+Fabric环境
@@ -39,7 +39,7 @@ peer0.org1.example.com:
   container_name: peer0.org1.example.com
   environment:
     - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
-    - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=192.168.100.129:5984
+    - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=127.0.0.1:5984
     - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
     - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=password
   extends:
@@ -49,7 +49,7 @@ peer0.org1.example.com:
 这里的192.168.100.129:5984是我映射CouchDB后的Linux的IP地址和IP。然后是设置用户名和密码。把4个Peer的配置都改好后，保存，我们试着启用Fabric：
 
 ./network_setup.sh up
-等Fabric启动完成并运行了ChainCode测试后，我们刷新http://127.0.0.1.129:5984/_utils ，可以看到以Channel名字创建的Database，另外还有几个是系统数据库。
+等Fabric启动完成并运行了ChainCode测试后，我们刷新http://127.0.0.1:5984/_utils ，可以看到以Channel名字创建的Database，另外还有几个是系统数据库。
 
 点进mychannel数据库，我们可以看到其中的数据内容。点击“Mango Query”可以编写查询，默认提供的查询可以点击Run Query按钮查询所有的数据结果：
 CouchDB的直接查询
