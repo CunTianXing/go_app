@@ -1,0 +1,8 @@
+curl -s -X POST \
+  http://localhost:4000/channels \
+  -H "authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1MTk5OTIwMzgsInVzZXJuYW1lIjoiQmFycnkiLCJvcmdOYW1lIjoib3JnMSIsImlhdCI6MTUxOTk1NjAzOH0.Wd43UAx-5wv6E7B0Yfew3Mc1BVgQZ-2XVfz4TzOZzp0" \
+  -H "content-type: application/json" \
+  -d '{
+    "channelName":"mychannel",
+    "channelConfigPath":"../artifacts/channel/mychannel.tx"
+}'

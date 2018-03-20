@@ -59,10 +59,11 @@ mspdir:
 #############################################################################
 tls:
   # TLS section for secure socket connection
-  certfiles:
+  enabled: true
+  certfiles: /data/go/src/github.com/CunTianXing/go_app/go-fabric/docker-clis/crypto-config/peerOrganizations/org1.example.com/ca/ca.org1.example.com-cert.pem
   client:
-    certfile:
-    keyfile:
+    certfile: /data/go/src/github.com/CunTianXing/go_app/go-fabric/docker-clis/crypto-config/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
+    keyfile: /data/go/src/github.com/CunTianXing/go_app/go-fabric/docker-clis/crypto-config/peerOrganizations/org1.example.com/tlsca/6e8c401a1db63c76915381e38f9f7708b70ec29bd40f6e03af66577db972d2c5_sk
 
 #############################################################################
 #  Certificate Signing Request section for generating the CSR for
@@ -99,7 +100,9 @@ csr:
       O: Hyperledger
       OU: Fabric
   hosts:
-    - xingcuntiandeMacBook-Pro.local
+    - ca.org1.example.com
+    - example.com
+    - localhost
   ca:
     pathlen:
     pathlenzero:

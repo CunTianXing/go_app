@@ -48,7 +48,13 @@ client:
     timeout:
       connection: 3s
       queryResponse: 45s
-      executeTxResponse: 30s
+      executeTxResponse: 60s
+      discovery:
+        # Expiry period for discovery service greylist filter
+        # The channel client will greylist peers that are found to be offline
+        # to prevent re-selecting them in subsequent retries.
+        # This interval will define how long a peer is greylisted
+        greylistExpiry: 5s
   eventService:
     timeout:
       connection: 3s
@@ -58,17 +64,16 @@ client:
       connection: 3s
       response: 5s
 
-
-  # Needed to load users crypto keys and certs.
+  # Root of the MSP directories with keys and certs.
   cryptoconfig:
-    path: ${GOPATH}/src/github.com/CunTianXing/go_app/go-fabric/docker-clis/crypto-config
+    path: ${GOPATH}/src/github.com/hyperledger/fabric-sdk-go/${CRYPTOCONFIG_FIXTURES_PATH}
 
   # Some SDKs support pluggable KV stores, the properties under "credentialStore"
   # are implementation specific
   credentialStore:
-    # [Optional]. Not used by Go SDK. Others SDKs may use it if using an alternative impl
-    # Could be used if SDK would require an object for properties like url, db name, etc.
-    path: "/tmp/hfc-kvs"
+    # [Optional]. Used by user store. Not needed if all credentials are embedded in configuration
+    # and enrollments are performed elswhere.
+    path: "/tmp/state-store"
 
     # [Optional]. Specific to the CryptoSuite implementation used by GO SDK. Software-based implementations
     # requiring a key store. PKCS#11 based implementations does not.
@@ -77,7 +82,7 @@ client:
       path: /tmp/msp
 
     # [Optional]. Specific to Composer environment. Not used by SDK Go.
-    wallet: wallet-name
+    #wallet: wallet-name
 
    # BCCSP config for the client. Used by GO SDK.
   BCCSP:
@@ -96,8 +101,8 @@ client:
 
     # [Optional]. Client key and cert for TLS handshake with peers and orderers
     client:
-      keyfile: ${GOPATH}/src/github.com/hyperledger/fabric-sdk-go/test/fixtures/config/mutual_tls/client_sdk_go-key.pem
-      certfile: ${GOPATH}/src/github.com/hyperledger/fabric-sdk-go/test/fixtures/config/mutual_tls/client_sdk_go.pem
+      keyfile: ${GOPATH}/src/github.com/CunTianXing/go_app/go-fabric/fabric-sdk-go/fixtures/config/mutual_tls/client_sdk_go-key.pem
+      certfile: ${GOPATH}/src/github.com/CunTianXing/go_app/go-fabric/fabric-sdk-go/fixtures/config/mutual_tls/client_sdk_go.pem
 
 #
 # [Optional]. But most apps would have this section so that channel objects can be constructed
@@ -157,7 +162,19 @@ channels:
         ledgerQuery: true
         eventSource: true
 
+      peer1.org1.example.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
       peer0.org2.example.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+      peer1.org2.example.com:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
@@ -170,11 +187,12 @@ organizations:
   Org1:
     mspid: Org1MSP
 
-    # Needed to load users crypto keys and certs for this org (absolute path or relative to global crypto path, DEV mode)
+    # This org's MSP store (absolute path or relative to client.cryptoconfig)
     cryptoPath:  peerOrganizations/org1.example.com/users/{userName}@org1.example.com/msp
 
     peers:
       - peer0.org1.example.com
+      - peer1.org1.example.com
 
     # [Optional]. Certificate Authorities issue certificates for identification purposes in a Fabric based
     # network. Typically certificates provisioning is done in a separate process outside of the
@@ -204,11 +222,12 @@ organizations:
   Org2:
     mspid: Org2MSP
 
-    # Needed to load users crypto keys and certs for this org (absolute path or relative to global crypto path, DEV mode)
+    # This org's MSP store (absolute path or relative to client.cryptoconfig)
     cryptoPath:  peerOrganizations/org2.example.com/users/{userName}@org2.example.com/msp
 
     peers:
       - peer0.org2.example.com
+      - peer1.org2.example.com
 
     certificateAuthorities:
       - ca.org2.example.com
@@ -229,17 +248,27 @@ organizations:
 #
 orderers:
   orderer.example.com:
-    url: grpcs://127.0.0.1:7050
+    url: orderer.example.com:7050
 
     # these are standard properties defined by the gRPC library
     # they will be passed in as-is to gRPC client constructor
+    #TODO to be moved to high level, common for all grpc connections
     grpcOptions:
       ssl-target-name-override: orderer.example.com
       grpc-max-send-message-length: 15
+#     These parameters should be set in coordination with the keepalive policy on the server,
+#     as incompatible settings can result in closing of connection.
+#     When duration of the 'keep-alive-time' is set to 0 or less the keep alive client parameters are disabled
+      keep-alive-time: 0s
+      keep-alive-timeout: 20s
+      keep-alive-permit: false
+      fail-fast: false
+      #will be taken into consideration if address has no protocol defined and secured connection fails
+      allow-insecure: false
 
     tlsCACerts:
       # Certificate location absolute path
-      path: ${GOPATH}/src/github.com/CunTianXing/go_app/go-fabric/docker-clis/crypto-config/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem
+      path: ${GOPATH}/src/github.com/hyperledger/fabric-sdk-go/${CRYPTOCONFIG_FIXTURES_PATH}/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem
 
 #
 # List of peers to send various requests to, including endorsement, query
@@ -248,26 +277,91 @@ orderers:
 peers:
   peer0.org1.example.com:
     # this URL is used to send endorsement and query requests
-    url: grpcs://127.0.0.1:7051
+    url: peer0.org1.example.com:7051
 
     # this URL is used to connect the EventHub and registering event listeners
-    eventUrl: grpcs://127.0.0.1:7053
+    eventUrl: peer0.org1.example.com:7053
 
+    #TODO to be moved to high level, common for all grpc connections
     grpcOptions:
       ssl-target-name-override: peer0.org1.example.com
       grpc.http2.keepalive_time: 15
+#     These parameters should be set in coordination with the keepalive policy on the server,
+#     as incompatible settings can result in closing of connection.
+#     When duration of the 'keep-alive-time' is set to 0 or less the keep alive client parameters are disabled
+      keep-alive-time: 0s
+      keep-alive-timeout: 20s
+      keep-alive-permit: false
+      fail-fast: false
+      #will be taken into consideration if address has no protocol defined and secured connection fails
+      allow-insecure: false
 
     tlsCACerts:
       # Certificate location absolute path
-      path: ${GOPATH}/src/github.com/CunTianXing/go_app/go-fabric/docker-clis/crypto-config/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
+      path: ${GOPATH}/src/github.com/hyperledger/fabric-sdk-go/${CRYPTOCONFIG_FIXTURES_PATH}/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
+
+  peer1.org1.example.com:
+    # this URL is used to send endorsement and query requests
+    url: peer1.org1.example.com:6051
+
+    # this URL is used to connect the EventHub and registering event listeners
+    eventUrl: peer1.org1.example.com:6053
+
+    #TODO to be moved to high level, common for all grpc connections
+    grpcOptions:
+      ssl-target-name-override: peer1.org1.example.com
+      grpc.http2.keepalive_time: 15
+#     These parameters should be set in coordination with the keepalive policy on the server,
+#     as incompatible settings can result in closing of connection.
+#     When duration of the 'keep-alive-time' is set to 0 or less the keep alive client parameters are disabled
+      keep-alive-time: 0s
+      keep-alive-timeout: 20s
+      keep-alive-permit: false
+      fail-fast: false
+      #will be taken into consideration if address has no protocol defined and secured connection fails
+      allow-insecure: false
+
+    tlsCACerts:
+      # Certificate location absolute path
+      path: ${GOPATH}/src/github.com/hyperledger/fabric-sdk-go/${CRYPTOCONFIG_FIXTURES_PATH}/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
 
   peer0.org2.example.com:
-    url: grpcs://127.0.0.1:8051
-    eventUrl: grpcs://127.0.0.1:8053
+    url: peer0.org2.example.com:8051
+    eventUrl: peer0.org2.example.com:8053
+    #TODO to be moved to high level, common for all grpc connections
     grpcOptions:
       ssl-target-name-override: peer0.org2.example.com
+#     These parameters should be set in coordination with the keepalive policy on the server,
+#     as incompatible settings can result in closing of connection.
+#     When duration of the 'keep-alive-time' is set to 0 or less the keep alive client parameters are disabled
+      keep-alive-time: 0s
+      keep-alive-timeout: 20s
+      keep-alive-permit: false
+      fail-fast: false
+      #will be taken into consideration if address has no protocol defined and secured connection fails
+      allow-insecure: false
+
     tlsCACerts:
-      path: ${GOPATH}/src/github.com/CunTianXing/go_app/go-fabric/docker-clis/crypto-config/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem
+      path: ${GOPATH}/src/github.com/hyperledger/fabric-sdk-go/${CRYPTOCONFIG_FIXTURES_PATH}/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem
+
+  peer1.org2.example.com:
+    url: peer1.org2.example.com:9051
+    eventUrl: peer1.org2.example.com:9053
+    #TODO to be moved to high level, common for all grpc connections
+    grpcOptions:
+      ssl-target-name-override: peer1.org2.example.com
+#     These parameters should be set in coordination with the keepalive policy on the server,
+#     as incompatible settings can result in closing of connection.
+#     When duration of the 'keep-alive-time' is set to 0 or less the keep alive client parameters are disabled
+      keep-alive-time: 0s
+      keep-alive-timeout: 20s
+      keep-alive-permit: false
+      fail-fast: false
+      #will be taken into consideration if address has no protocol defined and secured connection fails
+      allow-insecure: false
+
+    tlsCACerts:
+      path: ${GOPATH}/src/github.com/hyperledger/fabric-sdk-go/${CRYPTOCONFIG_FIXTURES_PATH}/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem
 
 #
 # Fabric-CA is a special kind of Certificate Authority provided by Hyperledger Fabric which allows
@@ -276,18 +370,20 @@ peers:
 #
 certificateAuthorities:
   ca.org1.example.com:
-    url: https://127.0.0.1:7054
+    url: https://ca.org1.example.com:7054
     # the properties specified under this object are passed to the 'http' client verbatim when
     # making the request to the Fabric-CA server
     httpOptions:
       verify: true
     tlsCACerts:
       # Comma-Separated list of paths
-      path: ${GOPATH}/src/github.com/hyperledger/fabric-sdk-go/test/fixtures/fabricca/tls/certs/ca_root.pem
+      path: ${GOPATH}/src/github.com/CunTianXing/go_app/go-fabric/fabric-sdk-go/fixtures/fabricca/tls/certs/ca_root.pem
       # Client key and cert for SSL handshake with Fabric CA
       client:
-       keyfile: ${GOPATH}/src/github.com/hyperledger/fabric-sdk-go/test/fixtures/fabricca/tls/certs/client/client_fabric_client-key.pem
-       certfile: ${GOPATH}/src/github.com/hyperledger/fabric-sdk-go/test/fixtures/fabricca/tls/certs/client/client_fabric_client.pem
+        key:
+          path: ${GOPATH}/src/github.com/CunTianXing/go_app/go-fabric/fabric-sdk-go/fixtures/fabricca/tls/certs/client/client_fabric_client-key.pem
+        cert:
+          path: ${GOPATH}/src/github.com/CunTianXing/go_app/go-fabric/fabric-sdk-go/fixtures/fabricca/tls/certs/client/client_fabric_client.pem
 
     # Fabric-CA supports dynamic user enrollment via REST APIs. A "root" user, a.k.a registrar, is
     # needed to enroll and invoke new users.
@@ -297,18 +393,20 @@ certificateAuthorities:
     # [Optional] The optional name of the CA.
     caName: ca.org1.example.com
   ca.org2.example.com:
-    url: https://127.0.0.1:8054
+    url: https://ca.org2.example.com:8054
     # the properties specified under this object are passed to the 'http' client verbatim when
     # making the request to the Fabric-CA server
     httpOptions:
       verify: true
     tlsCACerts:
       # Comma-Separated list of paths
-      path: ${GOPATH}/src/github.com/hyperledger/fabric-sdk-go/test/fixtures/fabricca/tls/certs/ca_root.pem
+      path: ${GOPATH}/src/github.com/CunTianXing/go_app/go-fabric/fabric-sdk-go/fixtures/fabricca/tls/certs/ca_root.pem
       # Client key and cert for SSL handshake with Fabric CA
       client:
-       keyfile: ${GOPATH}/src/github.com/hyperledger/fabric-sdk-go/test/fixtures/fabricca/tls/certs/client/client_fabric_client-key.pem
-       certfile: ${GOPATH}/src/github.com/hyperledger/fabric-sdk-go/test/fixtures/fabricca/tls/certs/client/client_fabric_client.pem
+        key:
+          path: ${GOPATH}/src/github.com/CunTianXing/go_app/go-fabric/fabric-sdk-go/fixtures/fabricca/tls/certs/client/client_fabric_client-key.pem
+        cert:
+          path: ${GOPATH}/src/github.com/CunTianXing/go_app/go-fabric/fabric-sdk-go/fixtures/fabricca/tls/certs/client/client_fabric_client.pem
 
      # Fabric-CA supports dynamic user enrollment via REST APIs. A "root" user, a.k.a registrar, is
      # needed to enroll and invoke new users.

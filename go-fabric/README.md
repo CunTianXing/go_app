@@ -65,9 +65,6 @@ type ChaincodeStubInterface interface {
 }
 
 docker tag hyperledger/fabric-orderer:x86_64-1.0.0 hyperledger/fabric-orderer:latests
-create database fabricca default character set utf8mb4 collate utf8mb4_unicode_ci;
- GRANT ALL PRIVILEGES ON  *.* TO xingcuntian@'%' IDENTIFIED BY 'xingcuntian';
-FLUSH PRIVILEGES;
 
 
 docker exec -it cli bash
@@ -90,3 +87,12 @@ peer chaincode invoke -o orderer.example.com:7050  --tls true --cafile $ORDERER_
 peer chaincode invoke -o orderer.example.com:7050  --tls true --cafile $ORDERER_CA -C mychannel -n fsmtest -c '{"Args":["Approve","EXP1"]}'
 这个时候，状态已经是Complete了，如果我们再次调用Approve函数会怎么样？因为我们在状态机中并没有定义这么一个流转事件，所以肯定是报错，无法正常执行的：
 总的来说，在Fabric的ChainCode开发中，引入第三方的库可以方便我们编写更强大的链上代码。而这个FSM虽然简单，但是也可以很好的将状态流转的逻辑进行集中，避免了在状态流转时编写大量的Ugly的代码，让我们在每个函数中更专注于业务逻辑，而不是麻烦的状态转移。最后直接粘贴出我的完整ChainCode 源码，方便大家直接使用。
+
+
+
+create database fabricca default character set utf8mb4 collate utf8mb4_unicode_ci;
+ GRANT ALL PRIVILEGES ON  *.* TO xingcuntian@'%' IDENTIFIED BY 'xingcuntian';
+FLUSH PRIVILEGES;
+
+docker tag SOURCE_IMAGE[:TAG] registry.sensetime.com/sense_link/IMAGE[:TAG]
+docker push registry.sensetime.com/sense_link/IMAGE[:TAG]

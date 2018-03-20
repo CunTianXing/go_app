@@ -149,3 +149,15 @@ func (t *SimpleChaincode) testCertificate(stub shim.ChaincodeStubInterface, args
    fmt.Println("Name:"+uname)
    return shim.Success([]byte("Called testCertificate "+uname))
 }
+
+
+
+openssl x509 -in signcerts/peer.pem -text -noout
+
+openssl ec -in keystore/key.pem -text -noout
+
+ openssl x509 -in $CLIENTCERT -text 2>&1 | sed 's/^/    /'
+ openssl x509 -in Admin\@org1.example.com-cert.pem -text 2>&1 | sed 's/^/    /'
+
+openssl ec -in $CLIENTKEY -text 2>/dev/null| sed 's/^/    /'
+openssl ec -in 3467b2f90fc267dd7c69ae0fbbdc2b76751e9e8b8ad56ff3f3408c86647d7615_sk -text 2>/dev/null| sed 's/^/    /'
