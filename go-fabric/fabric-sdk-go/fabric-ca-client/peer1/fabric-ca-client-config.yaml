@@ -60,9 +60,9 @@ mspdir:
 tls:
   # TLS section for secure socket connection
   certfiles: ../../fixtures/fabricca/tls/certs/ca_root.pem
-  client:
-    certfile: ../../fixtures/fabricca/tls/certs/client/client_fabric_client.pem
-    keyfile: ../../fixtures/fabricca/tls/certs/client/client_fabric_client-key.pem
+  client: #client_fabric_client.pem client_fabric_client-key.pem
+    certfile: ../../fixtures/fabricca/tls/certs/client/host1-cert.pem
+    keyfile: ../../fixtures/fabricca/tls/certs/client/host1-key.pem
 
 #############################################################################
 #  Certificate Signing Request section for generating the CSR for
