@@ -1,0 +1,144 @@
+从其他语言调用Go功能
+
+SenseTime
+xingcuntian
+xingcuntian@sensetime.com
+version golang1.10.1
+
+* 简单介绍
+  从1.5版开始，Go编译器通过-buildmode标志引入了对多种构建模式的支持。这些构建模式被称为Go执行模式，
+  它扩展了Go软件包，可将Go软件包编译成Go档案，Go共享库，C档案，C共享库和（引入1.8）Go动态插件等几种格式。
+  这篇文章是关于编译Go包到C共享库。在这种构建模式下，编译器输出一个标准的共享对象二进制文件（.so），
+  将Go函数公开为C风格的API。讨论如何创建可以从C，Python，Ruby，Node和Java调用的Go库
+
+* Go Code
+  首先，让我们编写Go代码。假设我们已经编写了一个hello想要提供给其他语言的Go库。
+  在将代码编译到共享库之前，需要遵循四个要求：
+
+  a.包裹必须是main 包裹。编译器将构建包及其所有依赖关系到单个共享对象二进制文件中。
+  b.源必须导入伪包"C"。
+  c.使用//export注释来注释您希望其他语言可访问的函数。
+  d.main必须声明一个空函数。
+     Go源导出四大功能Add，Cosine，Sort，和Log。无可否认，真棒图书馆并不令人印象深刻。
+  然而，其多样化的功能签名将帮助探索类型映射的影响。
+  该软件包使用-buildmode=c-sharedbuild标志进行编译以创建共享对象二进制文件：
+  go build -o hello.so -buildmode=c-shared hello.go
+  编译器输出两个文件：hello.h C头文件和hello.so共享目标文件，如下所示
+  hello.h		hello.so
+  请注意，该.so文件大约为2 Mb，对于这样一个简单的库来说相对较大。
+  这是因为整个Go运行时机器和依赖包被塞进一个单独的共享对象二进制文件（类似于编译单个静态可执行二进制文件）。
+* hello.h 头文件
+- 头文件使用cgo语义定义映射到Go兼容类型的C类型。
+  /* Created by "go tool cgo" - DO NOT EDIT. */
+
+  /* package command-line-arguments */
+
+  #line 1 "cgo-builtin-prolog"
+
+  #include <stddef.h> /* for ptrdiff_t below */
+
+  #ifndef GO_CGO_EXPORT_PROLOGUE_H
+  #define GO_CGO_EXPORT_PROLOGUE_H
+
+  typedef struct { const char *p; ptrdiff_t n; } _GoString_;
+  #endif
+
+  /* Start of preamble from import "C" comments.  */
+
+  /* End of preamble from import "C" comments.  */
+
+  /* Start of boilerplate cgo prologue.  */
+  #line 1 "cgo-gcc-export-header-prolog"
+
+* hello.h 头文件
+- 头文件使用cgo语义定义映射到Go兼容类型的C类型。
+  #ifndef GO_CGO_PROLOGUE_H
+  #define GO_CGO_PROLOGUE_H
+
+  typedef signed char GoInt8;
+  typedef unsigned char GoUint8;
+  typedef short GoInt16;
+  typedef unsigned short GoUint16;
+  typedef int GoInt32;
+  typedef unsigned int GoUint32;
+  typedef long long GoInt64;
+  typedef unsigned long long GoUint64;
+  typedef GoInt64 GoInt;
+  typedef GoUint64 GoUint;
+  typedef __SIZE_TYPE__ GoUintptr;
+  typedef float GoFloat32;
+  typedef double GoFloat64;
+  typedef float _Complex GoComplex64;
+  typedef double _Complex GoComplex128;
+
+* hello.h 头文件
+- 头文件使用cgo语义定义映射到Go兼容类型的C类型。
+  /*
+    static assertion to make sure the file is being used on architecture
+    at least with matching size of GoInt.
+  */
+  typedef char _check_for_64_bit_pointer_matching_GoInt[sizeof(void*)==64/8 ? 1:-1];
+  typedef _GoString_ GoString;
+  typedef void *GoMap;
+  typedef void *GoChan;
+  typedef struct { void *t; void *v; } GoInterface;
+  typedef struct { void *data; GoInt len; GoInt cap; } GoSlice;
+
+  #endif
+  /* End of boilerplate cgo prologue.  */
+  #ifdef __cplusplus
+  extern "C" {
+  #endif
+  extern GoInt Add(GoInt p0, GoInt p1);
+  extern GoFloat64 Cosine(GoFloat64 p0);
+  extern void Sort(GoSlice p0);
+  extern GoInt Log(GoString p0);
+  #ifdef __cplusplus
+  }
+  #endif
+
+* 共享对象文件
+- 编译器生成的另一个文件是一个64-bit ELF共享对象二进制文件。可以使用file命令验证其信息
+  file hello.so
+  hello.so: Mach-O 64-bit dynamically linked shared library x86_64
+- 使用nm和grep命令，可以确保Go功能被导出到共享对象文件中。
+  nm hello.so | grep -e "T Add" -e "T Cosine" -e "T Sort" -e "T Log"
+- 从C
+  有两种方法可以使用共享对象库从C中调用Go函数。首先，可以在编译时静态绑定共享库，
+  但在运行时动态链接它。或者，让Go函数符号在运行时动态加载和绑定。
+- 动态链接
+  在这种方法中，使用头文件来静态引用共享对象文件中导出的类型和函数。代码很简单，如下所示）：
+  编译C代码，指定共享对象库：
+  gcc -o client client.c ./hello.so
+  当执行结果二进制文件时，它会链接到hello.so库，调用从Go输出的函数
+* 动态加载
+  在这种方法中，C代码使用动态链接加载程序库（libdl.so）来动态加载和绑定导出的符号。
+  它使用定义的功能dhfcn.h，如dlopen打开的库文件，dlsym查找一个符号，dlerror检索错误，
+  并dlclose关闭该共享库文件。
+
+  因为绑定和链接是在源代码中完成的，所以这个版本更长。但是，它正在做与以前相同的事情
+  client2.c
+  自己去兼容的C类型的子集go_int，go_float，go_slice，和go_str。
+  使用dlsym加载符号Add，Cosine，Sort，和Log并将它们分配给其各自的函数指针。
+  接下来，编译链接它与dl库（不是hello.so）的代码
+  gcc -o client2 client2.c -ldl
+  当代码执行时，C二进制文件加载并链接到共享库hello.so，
+* 从Python
+  在Python中，使用ctypes 外部函数库从hello.so共享库中调用Go函数
+  请注意，lib变量表示来自共享对象文件的加载符号。
+  还定义了Python类GoString并GoSlice映射到它们各自的C结构类型。
+  当Python代码执行时，它会调用共享对象中的Go函数，
+  python client.py
+- 从Ruby
+  从Ruby调用Go函数的方式与上面类似。
+  使用FFI gem动态加载并调用hello.so共享对象文件中的导出Go函数
+  在Ruby中，必须扩展FFI模块以声明从共享库加载的符号。
+  使用Ruby类GoSlice并GoString映射相应的C结构。
+  当我们运行代码时，它会调用导出的Go函数
+  ruby client.rb
+- 从nodejs
+  对于Node，使用名为node-ffi的外部函数库（和一对依赖包）来动态加载并调用hello.so
+  共享对象文件中的导出Go函数
+  node 使用该ffi对象来声明来自共享库的加载符号。也使用Node结构对象GoSlice并GoString
+  映射到它们各自的C结构。当运行代码时，它会调用导出的Go函数
+- Java

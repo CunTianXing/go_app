@@ -1,0 +1,5 @@
+MODULE                                            VERSION
+github.com/CunTianXing/go_app/go-tool/vgo/vhello  -
+golang.org/x/text                                 v0.3.0
+rsc.io/quote                                      v1.5.2
+rsc.io/sampler                                    v1.3.1

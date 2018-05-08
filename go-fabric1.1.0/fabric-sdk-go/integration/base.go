@@ -1,7 +1,6 @@
 package integration
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -85,7 +84,6 @@ func (b *BaseConfig) Initialize(sdk *fabsdk.FabricSDK) error {
 		return err
 	}
 	b.Targets = targets
-
 	r, err := os.Open(b.ChannelConfigFile)
 	if err != nil {
 		log.Printf("opening channel config file failed: %v\n", err)
@@ -170,7 +168,7 @@ func InstallAndInstantiateCC(sdk *fabsdk.FabricSDK, user fabsdk.ContextOption, o
 	//ccPolicy := cauthdsl.SignedByMspAdmin(mspID)
 	ccPolicy := cauthdsl.SignedByAnyMember([]string{"Org1MSP", "Org2MSP"})
 	req := resmgmt.InstantiateCCRequest{Name: ccName, Path: ccPath, Version: ccVersion, Args: ccArgs, Policy: ccPolicy}
-	fmt.Printf("req: %+v\n", req)
+	log.Printf("req: %+v\n", req)
 	return resMgtClient.InstantiateCC(channelID, req, resmgmt.WithRetry(retry.DefaultResMgmtOpts))
 }
 

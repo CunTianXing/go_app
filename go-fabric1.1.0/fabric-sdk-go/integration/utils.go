@@ -80,7 +80,6 @@ func InitializeChannel(sdk *fabsdk.FabricSDK, orgID string, req resmgmt.SaveChan
 			log.Printf("create channel failed")
 			return err
 		}
-
 		_, err = JoinChannel(sdk, req.ChannelID, orgID)
 		if err != nil {
 			log.Printf("join channel failed")
@@ -150,7 +149,7 @@ func FilterTargetsJoinedChannel(sdk *fabsdk.FabricSDK, orgID string, channelID s
 //HasPeerJoinedChannel ....
 func HasPeerJoinedChannel(client *resmgmt.Client, target string, channel string) (bool, error) {
 	foundChannel := false
-	response, err := client.QueryChannels(resmgmt.WithTargetURLs(target), resmgmt.WithRetry(retry.DefaultResMgmtOpts))
+	response, err := client.QueryChannels(resmgmt.WithTargetURLs(target))
 	if err != nil {
 		log.Printf("failed to query channel for peer: %v\n", err)
 		return false, err

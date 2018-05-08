@@ -56,3 +56,9 @@ xingcuntian@sensetime.com
 - Golang在sync里面提供了对象池Pool。临时对象池。因为每次垃圾回收会把池子里面不被引用的对象回收掉。
 - 需要注意的是，Get方法会把返回的对象从池子里面删除。所以用完了的对象，还是得重新放回池子
 https://github.com/funny/slab/blob/master/sync_pool.go
+
+* sync.Pool
+
+ sync.Pool在高并发情况下使用是非常普遍的。你可能会创建大量的goroutines，并且它们每个都分配短暂的对象，然后导致GC速度缓慢。
+ 随着sync.Pool我们能够避免这种情况。GC内部的对象在GC之后将被清除而没有任何通知，因此sync.Pool不适合连接池。
+ 在GC发生之前，Put()回到池中的对象可能会被Get()重用。这意味着您有机会获得Get()具有旧值的对象。

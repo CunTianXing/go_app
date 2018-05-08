@@ -1,0 +1,128 @@
+Golang使用工具使用
+
+SenseTime
+xingcuntian
+xingcuntian@sensetime.com
+
+* 命令使用
+- mac 安装 brew install graphviz
+
+- trace_test.go
+
+- go test -cpuprofile cup.prof
+
+- go tool pprof -http=:8080 cup.prof
+
+- go test -blockprofile=block.out
+
+- go test -trace trace.out
+
+- go tool tool trace trace.out
+
+- go tool trace trace.out
+
+- go get github.com/google/pprof
+
+- pprof -http=:8080 cup.prof
+
+- pprof -http=:8080 block.out
+
+
+* escape-analysis
+  间接分配
+  间接调用
+  切片和map分配
+  接口
+  未知
+
+- go test -gcflags "-m -m" -run none -bench . -benchmem -memprofile mem.out
+- go tool pprof -alloc_space mem.out
+
+
+* vgo 使用
+- go get -u golang.org/x/vgo
+  mkdir hello
+  cd hello
+  curl -sS https://swtch.com/hello.go> hello.go
+- 创建一个空go.mod文件来标记此模块的根目录，然后构建并运行新程序：
+  echo module github.com/username/project > go.mod
+  vgo build
+- 找出构建所需依赖的模块：
+  vgo list -m
+- 升级
+  已经看到，当必须将新模块添加到构建以解决新的导入时，vgo需要使用最新的模块。此前，它需要rsc.io/quote并发现
+  v1.5.2是最新的。但除了解析新的导入时，vgo只能使用go.mod文件中列出的版本。在我们的例子中，rsc.io/quote间接地
+  依赖于特定版本golang.org/x/text和rsc.io/sampler。事实证明，这两个软件包都有更新的版本，正如我们通过向命令添加
+  -u（检查更新的软件包）所看到的那样vgo list：  1. vgo list -m -u  2. vgo get -u
+* vgo 测试依赖包
+  vgo test all
+  vgo test rsc.io/quote/...
+  vgo get -u
+  vgo build
+- vgo 降级
+  要降级软件包, 请使用 vgo list -t 显示可用的标记(tag)版本:
+  vgo list -t rsc.io/sampler
+  然后使用 vgo 获取要求的特定版本, 例如 v1.3.1
+  cat go.mod
+  vgo get rsc.io/sampler@v1.3.1
+  vgo list -m
+  cat go.mod
+  vgo test all
+  降级一个软件包可能需要降级其他软件包。例如
+  vgo get rsc.io/sampler@v1.2.0
+  vgo list -m
+  通过指定none版本，还可以完全删除依赖项，这是一种极端的降级形式
+  vgo get rsc.io/sampler@none
+  vgo list -m
+  vgo test all
+  让我们回到所有最新版本的状态，包括rsc.io/samplerv1.99.99：
+  vgo get -u
+* vgo 排除
+  在确定v1.99.99并不适用于现在的程序后，可能想要记录下这一事实，以避免将来出现问题。
+  可以通过添加一条exclude指令来做到这一点go.mod：
+  exclude "rsc.io/sampler" v1.99.99 加入模块go.mod
+  echo 'exclude "rsc.io/sampler" v1.99.99' >>go.mod
+  vgo list -t rsc.io/sampler
+  vgo get -u
+  vgo list -m
+  cat go.mod
+  vgo test all
+  排除仅适用于当前模块的构建。如果当前的模块是由较大的建设需要，排除不适用。
+  例如，在排除rsc.io/quote的go.mod并不适用于我们的程序构建。
+  这个策略平衡了当前模块的作者几乎可以任意控制他们自己的构建，而不会使它们受到它们依赖的模块几乎任意控制。
+* vgo 更换
+  如果确实在依赖中发现了问题, 则需要一种方法将其暂时替换为一个合适的副本. 假设想改变一些关于 rsc.io/quote
+  的行为. 也许我们想要解决 rsc.io/sampler 中的问题, 或者我们想要做其他的事情.第一步是使用通常的 git 命令检出 quote 模块:
+  git clone https://github.com/rsc/quote ../quote
+  然后编辑../quote/quote.go来改变一些事情func Hello。
+  例如，我将它的返回值从改变sampler.Hello() 到sampler.Glass()，一个更有趣的问候。
+  改变了克隆代码之后, 我们可以通过向 go.mod 添加 replace 指令来让我们的构建使用它来代替真正的构建:
+  replace "rsc.io/quote" v1.5.2 => "../quote"
+  cd ../hello
+  echo 'replace "rsc.io/quote" v1.5.2 => "../quote"' >>go.mod
+  vgo list -m
+  vgo build
+  你也可以将一个不同的模块命名为替换模块. 例如, 你可以克隆 github.com/rsc/quote,
+  然后将更改推送到你自己的分支.
+  cd ../quote
+  git commit -a -m 'my fork'
+  git tag v0.0.0-myfork
+  git push https://github.com/you/quote v0.0.0-myfork
+  然后你可以使用它作为替换:
+  cd ../hello
+  echo 'replace "rsc.io/quote" v1.5.2 => "github.com/you/quote" v0.0.0-myfork' >>go.mod
+  vgo list -m
+  vgo build
+* 向后兼容性
+  即使你想为你的项目使用 vgo, 你也不可能要求你的所有的用户都有 vgo. 相反, 你可以创建一个 vendor 目录,
+  以允许 go 命令用户生成几乎相同的构建(当然, 在 GOPATH 中编译):
+  vgo vendor
+  mkdir -p $GOPATH/src/github.com/you
+  cp -a . $GOPATH/src/github.com/you/hello
+  go build -o vhello github.com/you/hello
+  这些构建 “几乎相同”, 因为工具链看到的并在最终二进制文件中记录的导入路径是不同的.
+  vendored 版本参见 vendor 目录:
+  go tool nm hello | grep sampler.hello
+  go tool nm vhello | grep sampler.hello
+  除了这种差异, 构建应该产生相同的二进制文件. 为了提供优雅的转换,
+  基于 vgo 的构建完全忽略 vendor 目录, 一如既往的模块感知 go 命令构建.

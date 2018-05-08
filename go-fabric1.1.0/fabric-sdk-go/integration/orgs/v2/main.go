@@ -226,7 +226,7 @@ func createChannel(chMgmtClient *resmgmt.Client, orgAdminUsers []msp.SigningIden
 
 func query(chClientOrgUser *channel.Client, ccc *ChainCodeConfig, target fab.Peer) []byte {
 	request := channel.Request{ChaincodeID: ccc.ChainCodeName, Fcn: "invoke", Args: integration.GetQueryArgs()}
-	response, err := chClientOrgUser.Query(request, channel.WithTargets(target), channel.WithRetry(retry.DefaultChClientOpts))
+	response, err := chClientOrgUser.Query(request, channel.WithTargets(target))
 	if err != nil {
 		log.Fatalf("Failed to query funds: %s", err)
 	}
@@ -238,7 +238,7 @@ func query(chClientOrgUser *channel.Client, ccc *ChainCodeConfig, target fab.Pee
 
 func moveFunds(chClientOrgUser *channel.Client, ccc *ChainCodeConfig, target fab.Peer) fab.TransactionID {
 	request := channel.Request{ChaincodeID: ccc.ChainCodeName, Fcn: "invoke", Args: integration.GetTxArgs()}
-	response, err := chClientOrgUser.Execute(request, channel.WithTargets(target), channel.WithRetry(retry.DefaultChClientOpts))
+	response, err := chClientOrgUser.Execute(request, channel.WithTargets(target))
 	if err != nil {
 		log.Fatalf("Failed to move funds: %s", err)
 	}
@@ -262,11 +262,11 @@ func upgradeCC(orgRMgmtClients []resmgmt.Client, ccPkg *api.CCPackage, ccc *Chai
 	for _, client := range orgRMgmtClients {
 		_, err := client.InstallCC(request, resmgmt.WithRetry(retry.DefaultResMgmtOpts))
 		if err != nil {
-			log.Fatalf("Failed install chaincode on %s : %v\n: ", client, err)
+			log.Fatalf("Failed install chaincode on %v : %v\n: ", client, err)
 		}
 	}
 	// New chaincode policy
-	org1Andorg2Policy, err := cauthdsl.FromString("AND ('Org1MSP.member','Org2MSP.member')")
+	org1Andorg2Policy, err := cauthdsl.FromString("OR ('Org1MSP.member','Org2MSP.member')")
 	if err != nil {
 		log.Fatalf("Failed new chaincode policy: %v\n", err)
 	}
@@ -280,14 +280,14 @@ func upgradeCC(orgRMgmtClients []resmgmt.Client, ccPkg *api.CCPackage, ccc *Chai
 
 func checkChaincodePolicy(chOrg2Client *channel.Client, ccc *ChainCodeConfig, org1Peers []fab.Peer, org2Peers []fab.Peer) {
 	request := channel.Request{ChaincodeID: ccc.ChainCodeName, Fcn: "invoke", Args: integration.GetTxArgs()}
-	response, err := chOrg2Client.Execute(request, channel.WithTargets(org1Peers[0], org2Peers[0]), channel.WithRetry(retry.DefaultChClientOpts))
+	response, err := chOrg2Client.Execute(request, channel.WithTargets(org1Peers[0], org2Peers[0]))
 	if err != nil {
 		log.Printf("Should have failed to move funds due to cc policy: [%s %s]\n", org1Peers[0], org2Peers[0])
 	} else {
 		log.Printf("org channel user exec move fonds on org peer [%s %s] response txID: %s\n", org1Peers[0], org2Peers[0], response.TransactionID)
 	}
 
-	response, err = chOrg2Client.Execute(request, channel.WithTargets(org1Peers...), channel.WithRetry(retry.DefaultChClientOpts))
+	response, err = chOrg2Client.Execute(request, channel.WithTargets(org1Peers...))
 	if err != nil {
 		log.Fatalf("Should have failed to move funds due to cc policy: %v\n", org1Peers)
 	}

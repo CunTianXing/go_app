@@ -1,0 +1,19 @@
+Golang性能测试
+
+SenseTime
+xingcuntian
+xingcuntian@sensetime.com
+
+* String Concatenation
+  此基准测试在构建一个包含1,000个字符的字符串时使用+运算符，
+  bytes.Buffer和strings.Builder评估字符串连接的性能。
+  使用bytes.Buffer(逃逸分析 //cmd / compile，bytes：bootstrap数组导致bytes.Buffer始终被堆分配)和的实现strings.Builder是最快的。
+  建议使用 strings.Builder
+* Numeric Conversions
+  基准测试评估解析字符串的性能bool，int64并float64使用Go类型STRCONV包。
+* Regular Expressions
+  该基准测试使用Go regexp包对编译和未编译的正则表达式评估正则表达式匹配的性能。
+  该示例使用简单的电子邮件验证正则表达式。正如所料，编译后的正则表达式匹配速度更快
+* Sorting
+  此基准评估int使用Go 排序软件包中的内置排序算法对1,000,10,000,100,000和1,000,000个元素进行排序的性能。
+  时间复杂度记录为O（n * log（n））

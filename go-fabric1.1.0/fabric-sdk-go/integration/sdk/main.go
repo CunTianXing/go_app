@@ -11,7 +11,6 @@ import (
 	"github.com/CunTianXing/go_app/go-fabric1.1.0/fabric-sdk-go/integration"
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/channel"
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/ledger"
-	"github.com/hyperledger/fabric-sdk-go/pkg/common/errors/retry"
 	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fab"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fabsdk"
@@ -83,7 +82,7 @@ func main() {
 	}
 	fmt.Println(endpointConfig)
 
-	expectedPeerConfig, err := endpointConfig.PeerConfig(baseConfig.OrgID, "peer0.org1.example.com")
+	expectedPeerConfig, err := endpointConfig.PeerConfig("peer0.org1.example.com")
 	if err != nil {
 		log.Fatalf("Unable to fetch Peer config for %s", "peer0.org1.example.com")
 	}
@@ -101,7 +100,7 @@ func main() {
 		log.Fatalf("Failed to create new channel client: %s", err)
 	}
 	qreq := channel.Request{ChaincodeID: chaincodeID, Fcn: "invoke", Args: integration.GetQueryArgs()}
-	response, err := chClient.Query(qreq, channel.WithRetry(retry.DefaultChClientOpts))
+	response, err := chClient.Query(qreq)
 	if err != nil {
 		log.Fatalf("Failed to query funds: %s", err)
 	}
